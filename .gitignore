@@ -1,0 +1,40 @@
+# Environment variables
+.env
+*.local
+
+# Node.js
+node_modules/
+dist/
+dist-ssr/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+api.egg-info/
+build/
+dist/
+venv/
+app_debug.log
+
+# Medical Data & Logs (Private)
+data/input/
+data/processed/
+*.log
+
+# Editor and System files
+.vscode/
+.idea/
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+Thumbs.db
+desktop.ini
