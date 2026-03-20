@@ -1,0 +1,271 @@
+/* ═══════════════════════════════════════════════════════════════
+   OTC List Page
+   ═══════════════════════════════════════════════════════════════ */
+
+.otc-page {
+  margin-top: var(--navbar-height);
+  min-height: calc(100vh - var(--navbar-height));
+  padding: var(--space-2xl);
+  overflow-y: auto;
+}
+
+.otc-page-inner {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+
+/* ─── Header ────────────────────────────────────────────────── */
+
+.otc-page-header {
+  margin-bottom: var(--space-2xl);
+}
+
+.otc-header-text {
+  margin-bottom: var(--space-lg);
+}
+
+.otc-page-header h1 {
+  font-size: 2.25rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin-bottom: var(--space-xs);
+}
+
+.otc-header-desc {
+  font-size: 0.9375rem;
+  color: var(--color-text-secondary);
+}
+
+/* Search */
+.otc-search-wrap {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-lg);
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  transition: all var(--transition-fast);
+  color: var(--color-text-muted);
+}
+
+.otc-search-wrap:focus-within {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(0, 229, 160, 0.08);
+  color: var(--color-accent);
+}
+
+.otc-search-wrap input {
+  flex: 1;
+  border: none;
+  background: none;
+  outline: none;
+  color: var(--color-text-primary);
+  font-size: 0.9375rem;
+  padding: var(--space-sm) 0;
+}
+
+.otc-search-wrap input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.search-clear {
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 50%;
+  background: var(--color-bg-elevated);
+  color: var(--color-text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+}
+
+.search-clear:hover {
+  background: rgba(255, 82, 82, 0.1);
+  color: var(--color-danger);
+}
+
+
+/* ─── Search Results ────────────────────────────────────────── */
+
+.results-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-lg);
+}
+
+.results-count {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-text-muted);
+}
+
+.mini-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--color-border);
+  border-top-color: var(--color-accent);
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+.no-results {
+  text-align: center;
+  padding: var(--space-3xl);
+  color: var(--color-text-muted);
+}
+
+.no-results-icon {
+  font-size: 2.5rem;
+  display: block;
+  margin-bottom: var(--space-md);
+  opacity: 0.4;
+}
+
+.results-grid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.result-card {
+  padding: var(--space-lg);
+}
+
+.result-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-md);
+  margin-bottom: var(--space-md);
+}
+
+.result-name {
+  font-weight: 600;
+  font-size: 0.9375rem;
+  color: var(--color-text-primary);
+}
+
+.result-type-badge {
+  flex-shrink: 0;
+  font-size: 0.6875rem;
+  font-family: var(--font-mono);
+  padding: 2px var(--space-sm);
+  border-radius: var(--radius-full);
+  border: 1px solid;
+  white-space: nowrap;
+}
+
+.result-score {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.score-bar {
+  flex: 1;
+  height: 4px;
+  background: var(--color-bg-elevated);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.score-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-accent), var(--color-cyan));
+  border-radius: var(--radius-full);
+  transition: width 0.5s ease;
+}
+
+.score-value {
+  font-size: 0.6875rem;
+  color: var(--color-accent);
+  min-width: 32px;
+  text-align: right;
+}
+
+
+/* ─── Categories ────────────────────────────────────────────── */
+
+.otc-categories {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xl);
+}
+
+.category-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-md);
+}
+
+.category-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.category-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.category-count {
+  font-size: 0.6875rem;
+  color: var(--color-text-muted);
+  background: var(--color-bg-surface);
+  padding: 2px var(--space-sm);
+  border-radius: var(--radius-full);
+}
+
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--space-sm);
+}
+
+.medicine-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md) var(--space-lg);
+  cursor: default;
+  transition: all var(--transition-base);
+}
+
+.med-indicator {
+  width: 3px;
+  height: 24px;
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+}
+
+.med-name {
+  font-size: 0.875rem;
+  color: var(--color-text-primary);
+}
+
+
+/* ─── Responsive ────────────────────────────────────────────── */
+
+@media (max-width: 640px) {
+  .otc-page {
+    padding: var(--space-lg);
+  }
+
+  .otc-page-header h1 {
+    font-size: 1.75rem;
+  }
+
+  .category-grid {
+    grid-template-columns: 1fr;
+  }
+}

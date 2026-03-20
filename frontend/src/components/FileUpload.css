@@ -1,0 +1,117 @@
+/* ─── File Upload ────────────────────────────────────────────── */
+
+.file-upload-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  padding: var(--space-xl) var(--space-lg);
+  border: 2px dashed var(--color-border);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  background: transparent;
+  position: relative;
+  overflow: hidden;
+}
+
+.file-upload-zone::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, rgba(0, 229, 160, 0.03), transparent 70%);
+  opacity: 0;
+  transition: opacity var(--transition-base);
+}
+
+.file-upload-zone:hover::before,
+.file-upload-zone.dragging::before {
+  opacity: 1;
+}
+
+.file-upload-zone:hover {
+  border-color: var(--color-border-hover);
+  transform: translateY(-2px);
+}
+
+.file-upload-zone.dragging {
+  border-color: var(--color-accent);
+  background: rgba(0, 229, 160, 0.03);
+  animation: border-pulse 1.5s ease-in-out infinite;
+}
+
+.file-upload-zone.uploading {
+  pointer-events: none;
+  border-color: var(--color-accent-dim);
+}
+
+.upload-icon-wrap {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-lg);
+  background: var(--color-accent-glow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-accent);
+  transition: transform var(--transition-spring);
+}
+
+.file-upload-zone:hover .upload-icon-wrap {
+  transform: translateY(-3px);
+}
+
+.upload-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.upload-main {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+.upload-sub {
+  font-size: 0.6875rem;
+  color: var(--color-text-muted);
+  letter-spacing: 0.02em;
+}
+
+.upload-filename {
+  font-size: 0.75rem;
+  color: var(--color-accent);
+  font-family: var(--font-mono);
+  background: var(--color-accent-glow);
+  padding: 2px var(--space-sm);
+  border-radius: var(--radius-sm);
+}
+
+/* Progress */
+.upload-progress {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.upload-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--color-border);
+  border-top-color: var(--color-accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.upload-text {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}
