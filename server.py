@@ -134,6 +134,8 @@ async def upload_prescription(
 
     # Format medicine details
     med_details = []
+    clinical_notes = data.get("clinical_summary", "") or data.get("notes", "")
+
     for med in data.get("medicines", []):
         timing = med.get("timing", {})
         timing_str = (
@@ -148,6 +150,17 @@ async def upload_prescription(
         )
 
     meds_str = "\n".join(med_details)
+    
+    # Final assembly
+    display_title = "Prescription" if med_details else "Clinical Observation"
+    full_details = f"DATE: {data.get('date', 'Unknown')}\n\n"
+    if meds_str:
+        full_details += f"MEDICATIONS:\n{meds_str}\n\n"
+    if clinical_notes:
+        full_details += f"OBSERVATIONS/ADVICE:\n{clinical_notes}"
+    
+    if not meds_str and not clinical_notes:
+        full_details += "No medical details could be found in this document."
     text_content = f"Date: {data.get('date')}\n\nMedicines:\n{meds_str}\n\nNotes: {data.get('notes')}"
 
     # Store in Pinecone
@@ -157,14 +170,14 @@ async def upload_prescription(
     # Generate title
     med_names = [m.get("name", "Unknown") for m in data.get("medicines", [])]
     if med_names:
-        title = f"Prescription: {', '.join(med_names[:2])}"
+        title = f"Medications: {', '.join(med_names[:2])}"
         if len(med_names) > 2:
             title += "..."
     else:
-        title = f"Prescription {file.filename}"
+        title = f"Observation: {file.filename[:15]}..."
 
     session_id = memory_manager.get_or_create_session(
-        username, file_id, title=title, filename=file.filename, details=meds_str, extracted_data=data
+        username, file_id, title=title, filename=file.filename, details=full_details, extracted_data=data
     )
 
     return {

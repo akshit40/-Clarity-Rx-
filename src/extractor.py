@@ -27,28 +27,33 @@ class PrescriptionExtractor:
             return None
 
         prompt = """
-        You are an expert medical assistant. Analyze this prescription and extract the following information in JSON format.
-        Focus strictly on the medicine details and instructions.
+        ACT AS A PROFESSIONAL RADIOLOGIST AND PHARMACIST.
+        You are looking at a medical document (handwritten note or prescription).
+        
+        CRITICAL GOALS:
+        1. Extract Medicine Details if any are present.
+        2. Extract Clinical Notes, Diagnosis, and Advice if no medicines are present.
         
         {
             "date": "Date of prescription",
             "medicines": [
                 {
-                    "name": "Exact name of the tablet/medicine",
-                    "quantity": "How much to take (e.g., 1 tablet, 5ml)",
+                    "name": "Corrected medicinal name",
+                    "quantity": "Amount (e.g., 5ml, 1 tab)",
                     "timing": {
-                        "morning": "Yes/No",
-                        "afternoon": "Yes/No",
-                        "night": "Yes/No",
-                        "instruction": "Before meal / After meal / Empty stomach / etc."
+                        "morning": "1/0",
+                        "afternoon": "1/0",
+                        "night": "1/0",
+                        "instruction": "Specific timing notes"
                     },
-                    "frequency": "Raw frequency string (e.g., 1-0-1)",
-                    "duration": "For how many days the medicine should be taken"
+                    "frequency": "Raw pattern (e.g., OD, BD, TID)",
+                    "duration": "Duration (e.g., 5 days)"
                 }
             ],
-            "notes": "Any special instructions"
+            "clinical_summary": "Summary of observations, check-ups, and advice (e.g., 'Ultrasound required', 'No meds found')",
+            "notes": "Any other instructions"
         }
-        If a field is missing, use "-". Return ONLY the JSON.
+        Return ONLY valid JSON.
         """
 
         try:
@@ -63,8 +68,9 @@ class PrescriptionExtractor:
                         sample_file = genai.get_file(sample_file.name)
                     content.append(sample_file)
                 else:
-                    import PIL.Image
-                    img = PIL.Image.open(file_input)
+                    # ML PIPELINE PHASE 1: Image Preprocessing
+                    from src.image_processor import ImageProcessor
+                    img = ImageProcessor.process_for_ocr(file_input)
                     content.append(img)
             elif hasattr(file_input, 'read'):
                 # Save temporarily and process
@@ -86,7 +92,16 @@ class PrescriptionExtractor:
             elif "```" in text:
                 text = text.split("```")[1].split("```")[0]
             
-            return json.loads(text.strip())
+            result_json = json.loads(text.strip())
+
+            # ML PIPELINE PHASE 3: Domain-Specific Fuzzy Matching Correction
+            from src.fuzzy_drug_matcher import FuzzyDrugMatcher
+            for med in result_json.get("medicines", []):
+                original_name = med.get("name", "")
+                corrected_name = FuzzyDrugMatcher.get_best_match(original_name)
+                med["name"] = corrected_name
+
+            return result_json
 
         except Exception as e:
             import traceback

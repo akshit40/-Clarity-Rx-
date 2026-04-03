@@ -270,8 +270,10 @@
   padding: var(--space-md) var(--space-xl);
   border-bottom: 1px solid var(--color-border);
   flex-shrink: 0;
-  background: rgba(6, 13, 22, 0.5);
+  background: rgba(6, 13, 22, 0.95);
   backdrop-filter: blur(12px);
+  z-index: 50;
+  position: relative;
 }
 
 .chat-header-title {
@@ -478,6 +480,16 @@
 
 .otc-item:last-child {
   border-bottom: none;
+}
+
+.otc-check-btn:disabled, .voice-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.voice-btn svg, .voice-btn span, .otc-check-btn svg, .otc-check-btn span {
+  pointer-events: none;
 }
 
 .otc-item strong {

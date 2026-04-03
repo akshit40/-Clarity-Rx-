@@ -123,12 +123,24 @@ export default function Dashboard() {
   };
 
   const handleOTCCheck = async () => {
-    if (!sessionId || !sessionDetails) return;
-    setShowOtc(true);
-    setOtcLoading(true);
+    console.log("OTC Check Clicked. Active P:", activePrescription, "Session ID:", sessionId);
+    if (!sessionId) {
+      alert("Session not ready. Please wait.");
+      return;
+    }
+    
+    // Toggle showOtc
+    if (showOtc) {
+      setShowOtc(false);
+      return;
+    }
 
+    setShowOtc(true);
+    if (otcResult) return; // Don't re-fetch if we already have it
+
+    setOtcLoading(true);
     try {
-      const data = await checkOTC(sessionId, activePrescription.id, sessionDetails);
+      const data = await checkOTC(sessionId, activePrescription.id, sessionDetails || "Check latest prescription content");
       setOtcResult(data.result);
     } catch (err) {
       console.error('OTC check failed:', err);
@@ -139,7 +151,13 @@ export default function Dashboard() {
   };
 
   const handleSpeak = () => {
-    if (!messages.length || isSpeaking) return;
+    if (isSpeaking) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+      return;
+    }
+
+    if (!messages.length) return;
     
     // Find last AI message
     const lastAiMsg = [...messages].reverse().find(m => m.role === 'ai');
@@ -250,22 +268,23 @@ export default function Dashboard() {
               <div className="chat-header-actions">
                 <button 
                   className={`voice-btn ${isSpeaking ? 'speaking' : ''}`}
-                  onClick={handleSpeak}
+                  onClick={() => {
+                    console.log("Voice Button Clicked. Current isSpeaking:", isSpeaking);
+                    handleSpeak();
+                  }}
                   title="Listen to Advice"
                 >
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
                   {isSpeaking ? 'Speaking...' : 'Listen'}
                 </button>
-                {sessionDetails && (
-                  <button
-                    className={`otc-check-btn ${showOtc ? 'active' : ''}`}
-                    onClick={handleOTCCheck}
-                    disabled={otcLoading}
-                  >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                    {otcLoading ? 'Checking...' : 'OTC Check'}
-                  </button>
-                )}
+                <button
+                  className={`otc-check-btn ${showOtc ? 'active' : ''}`}
+                  onClick={handleOTCCheck}
+                  disabled={otcLoading}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                  {otcLoading ? 'Checking...' : 'OTC Check'}
+                </button>
               </div>
             </div>
 
