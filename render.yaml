@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: clarity-rx-backend
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn server:app -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT
+    envVars:
+      - key: GOOGLE_API_KEY
+        sync: false
+      - key: PINECONE_API_KEY
+        sync: false
+      - key: MONGO_URI
+        sync: false
