@@ -25,7 +25,7 @@ class MemoryManager:
             self.sessions = None
             self.messages = None
 
-    def get_or_create_session(self, user_id, prescription_id, title=None, filename=None, details=None):
+    def get_or_create_session(self, user_id, prescription_id, title=None, filename=None, details=None, extracted_data=None):
         """
         Retrieves an existing session for the (user, prescription) pair,
         or creates a new one if it doesn't exist.
@@ -48,6 +48,8 @@ class MemoryManager:
                     updates["filename"] = filename
                 if details and not existing_session.get("details"):
                     updates["details"] = details
+                if extracted_data and not existing_session.get("extracted_data"):
+                    updates["extracted_data"] = extracted_data
 
                 if updates:
                     self.sessions.update_one(
@@ -72,6 +74,8 @@ class MemoryManager:
                 doc["filename"] = filename
             if details:
                 doc["details"] = details
+            if extracted_data:
+                doc["extracted_data"] = extracted_data
 
             self.sessions.insert_one(doc)
             logger.info(f"Created new session {session_id} for user {user_id} on prescription {prescription_id}")
@@ -79,6 +83,17 @@ class MemoryManager:
         except Exception as e:
             logger.error(f"get_or_create_session failed: {e}")
             return str(uuid.uuid4())
+
+    def get_session_info(self, session_id):
+        """Retrieves full session info."""
+        if self.sessions is None:
+            return {}
+        try:
+            session = self.sessions.find_one({"session_id": session_id})
+            return session if session else {}
+        except Exception as e:
+            logger.error(f"get_session_info failed: {e}")
+            return {}
 
     def get_session_details(self, session_id):
         """Retrieves details (medicine summary) for a session."""

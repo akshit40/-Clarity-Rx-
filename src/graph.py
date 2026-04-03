@@ -78,9 +78,11 @@ class RAGGraph:
         
         IMPORTANT INSTRUCTIONS:
         1. Answer in the following language: {language}
-        2. If the user asks about a medicine ("What is this for?"), provide TWO things:
-           a) The specific instructions from the prescription (dosage, timing).
-           b) General medical knowledge about what the medicine is commonly used for (e.g., "Paracetamol is commonly used for fever and pain relief").
+        2. STRUCTURE your answer for ANY medicine asked:
+           - 🩺 **Purpose**: Why is this used? (e.g., "This is for infection")
+           - 💊 **Dose & Schedule**: The exact amount and time (e.g., "1 Tablet twice a day after meals").
+           - ⚠️ **Important Note**: If the information isn't in the prescription, clearly state "Not mentioned in prescription" and provide General Medical Knowledge instead.
+        3. ALWAYS end with a disclaimer: "Consult your doctor before changing your dosage."
         
         Context from Prescriptions:
         {context_str}

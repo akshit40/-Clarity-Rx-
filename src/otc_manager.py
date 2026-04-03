@@ -142,7 +142,13 @@ class OTCManager:
             """
 
             try:
-                response = self.llm.invoke(prompt)
+                # 1. Local Vector Search for candidates
+                matches = self.vector_store.search(med_str, namespace=self.otc_namespace, top_k=3)
+                candidates = [m.metadata['text'] for m in matches if m.score > 0.65]
+                candidates_str = "\n".join(candidates) if candidates else "None"
+
+                # 2. LLM Verification against local candidates
+                response = self.llm.invoke(prompt.format(med_str=med_str, candidates_str=candidates_str))
                 content = response.content.replace("```json", "").replace("```", "").strip()
                 verification = json.loads(content)
 
@@ -154,10 +160,20 @@ class OTCManager:
                         "reason": f"Matched with {verification.get('matched_candidate')}"
                     })
                 else:
-                    results["consult_medicines"].append({
-                        "name": name_clean,
-                        "reason": verification.get("reason", "Not a valid match with allowed list")
-                    })
+                    # 3. Fallback to OpenFDA (Government Database)
+                    from src.drug_info_service import DrugInfoService
+                    fda_info = DrugInfoService.search_drug(name_clean)
+                    
+                    if fda_info and fda_info.get("is_otc"):
+                        results["otc_medicines"].append({
+                            "name": name_clean,
+                            "reason": f"Verified as OTC via OpenFDA ({fda_info.get('purpose', 'General Use')})"
+                        })
+                    else:
+                        results["consult_medicines"].append({
+                            "name": name_clean,
+                            "reason": verification.get("reason", "Not a valid match with allowed list")
+                        })
 
             except Exception as e:
                 logger.error(f"Error checking medicine {med_str}: {e}")

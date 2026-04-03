@@ -164,7 +164,7 @@ async def upload_prescription(
         title = f"Prescription {file.filename}"
 
     session_id = memory_manager.get_or_create_session(
-        username, file_id, title=title, filename=file.filename, details=meds_str
+        username, file_id, title=title, filename=file.filename, details=meds_str, extracted_data=data
     )
 
     return {
@@ -184,8 +184,12 @@ async def upload_prescription(
 @app.get("/api/sessions/{prescription_id}")
 async def get_session(prescription_id: str, username: str = Query(...)):
     session_id = memory_manager.get_or_create_session(username, prescription_id)
-    details = memory_manager.get_session_details(session_id)
-    return {"session_id": session_id, "details": details}
+    session_info = memory_manager.get_session_info(session_id)
+    return {
+        "session_id": session_id, 
+        "details": session_info.get("details", ""),
+        "extracted_data": session_info.get("extracted_data")
+    }
 
 
 # ── Chat Endpoints ────────────────────────────────────────────────

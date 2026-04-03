@@ -11,6 +11,7 @@ import {
 import FileUpload from '../components/FileUpload';
 import ChatMessage from '../components/ChatMessage';
 import LoadingSpinner from '../components/LoadingSpinner';
+import DosageTimeline from '../components/DosageTimeline';
 import './Dashboard.css';
 
 export default function Dashboard() {
@@ -30,6 +31,8 @@ export default function Dashboard() {
   const [otcLoading, setOtcLoading] = useState(false);
   const [showOtc, setShowOtc] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [extractedData, setExtractedData] = useState(null);
+  const [isSpeaking, setIsSpeaking] = useState(false);
 
   const chatEndRef = useRef(null);
   const inputRef = useRef(null);
@@ -64,6 +67,7 @@ export default function Dashboard() {
       const sessionData = await getSession(p.id, user);
       setSessionId(sessionData.session_id);
       setSessionDetails(sessionData.details || '');
+      setExtractedData(sessionData.extracted_data || null);
 
       const historyData = await getChatHistory(sessionData.session_id);
       setMessages(historyData.messages || []);
@@ -132,6 +136,21 @@ export default function Dashboard() {
     } finally {
       setOtcLoading(false);
     }
+  };
+
+  const handleSpeak = () => {
+    if (!messages.length || isSpeaking) return;
+    
+    // Find last AI message
+    const lastAiMsg = [...messages].reverse().find(m => m.role === 'ai');
+    if (!lastAiMsg) return;
+
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(lastAiMsg.content);
+    utterance.onstart = () => setIsSpeaking(true);
+    utterance.onend = () => setIsSpeaking(false);
+    utterance.onerror = () => setIsSpeaking(false);
+    window.speechSynthesis.speak(utterance);
   };
 
   return (
@@ -229,6 +248,14 @@ export default function Dashboard() {
                 </span>
               </div>
               <div className="chat-header-actions">
+                <button 
+                  className={`voice-btn ${isSpeaking ? 'speaking' : ''}`}
+                  onClick={handleSpeak}
+                  title="Listen to Advice"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+                  {isSpeaking ? 'Speaking...' : 'Listen'}
+                </button>
                 {sessionDetails && (
                   <button
                     className={`otc-check-btn ${showOtc ? 'active' : ''}`}
@@ -242,87 +269,94 @@ export default function Dashboard() {
               </div>
             </div>
 
-            {/* Medicine Details */}
-            {sessionDetails && (
-              <details className="medicine-details glass-panel">
-                <summary className="details-summary">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
-                  <span className="font-display">Medicine Details</span>
-                </summary>
-                <pre className="details-content font-mono">{sessionDetails}</pre>
-              </details>
-            )}
+            {/* Chat Body (Scrollable Area) */}
+            <div className="chat-body">
+              {/* Medicine Details */}
+              {sessionDetails && (
+                <div className="dashboard-insights animate-in">
+                  <DosageTimeline extractedData={extractedData} />
+                  
+                  <details className="medicine-details glass-panel">
+                    <summary className="details-summary">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+                      <span className="font-display">Medicine Details</span>
+                    </summary>
+                    <pre className="details-content font-mono">{sessionDetails}</pre>
+                  </details>
+                </div>
+              )}
 
-            {/* OTC Results */}
-            {showOtc && (
-              <div className="otc-results animate-in">
-                {otcLoading ? (
-                  <LoadingSpinner text="Analyzing OTC status..." />
-                ) : otcResult?.error ? (
-                  <div className="form-alert alert-error">{otcResult.error}</div>
-                ) : otcResult ? (
-                  <div className="otc-grid">
-                    {otcResult.otc_medicines?.length > 0 && (
-                      <div className="otc-column otc-safe">
-                        <h4 className="otc-col-title">
-                          <span className="badge-dot dot-green" />
-                          Safe to Buy
-                        </h4>
-                        {otcResult.otc_medicines.map((m, i) => (
-                          <div key={i} className="otc-item">
-                            <strong>{m.name}</strong>
-                            <span>{m.reason}</span>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                    {otcResult.consult_medicines?.length > 0 && (
-                      <div className="otc-column otc-consult">
-                        <h4 className="otc-col-title">
-                          <span className="badge-dot dot-amber" />
-                          Consult Doctor
-                        </h4>
-                        {otcResult.consult_medicines.map((m, i) => (
-                          <div key={i} className="otc-item">
-                            <strong>{m.name}</strong>
-                            <span>{m.reason}</span>
-                          </div>
-                        ))}
-                      </div>
-                    )}
+              {/* OTC Results */}
+              {showOtc && (
+                <div className="otc-results animate-in">
+                  {otcLoading ? (
+                    <LoadingSpinner text="Analyzing OTC status..." />
+                  ) : otcResult?.error ? (
+                    <div className="form-alert alert-error">{otcResult.error}</div>
+                  ) : otcResult ? (
+                    <div className="otc-grid">
+                      {otcResult.otc_medicines?.length > 0 && (
+                        <div className="otc-column otc-safe">
+                          <h4 className="otc-col-title">
+                            <span className="badge-dot dot-green" />
+                            Safe to Buy
+                          </h4>
+                          {otcResult.otc_medicines.map((m, i) => (
+                            <div key={i} className="otc-item">
+                              <strong>{m.name}</strong>
+                              <span>{m.reason}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      {otcResult.consult_medicines?.length > 0 && (
+                        <div className="otc-column otc-consult">
+                          <h4 className="otc-col-title">
+                            <span className="badge-dot dot-amber" />
+                            Consult Doctor
+                          </h4>
+                          {otcResult.consult_medicines.map((m, i) => (
+                            <div key={i} className="otc-item">
+                              <strong>{m.name}</strong>
+                              <span>{m.reason}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ) : null}
+                </div>
+              )}
+
+              {/* Messages */}
+              <div className="chat-messages">
+                {isLoadingHistory ? (
+                  <LoadingSpinner text="Loading history..." />
+                ) : messages.length === 0 ? (
+                  <div className="chat-empty">
+                    <p className="font-mono">Ask anything about this prescription</p>
                   </div>
-                ) : null}
+                ) : (
+                  messages.map((msg, idx) => (
+                    <ChatMessage
+                      key={idx}
+                      role={msg.role}
+                      content={msg.content}
+                      index={idx}
+                    />
+                  ))
+                )}
+
+                {/* Typing indicator */}
+                {isSending && (
+                  <div className="typing-indicator">
+                    <div className="typing-dot" style={{ animationDelay: '0s' }} />
+                    <div className="typing-dot" style={{ animationDelay: '0.15s' }} />
+                    <div className="typing-dot" style={{ animationDelay: '0.3s' }} />
+                  </div>
+                )}
+                <div ref={chatEndRef} />
               </div>
-            )}
-
-            {/* Messages */}
-            <div className="chat-messages">
-              {isLoadingHistory ? (
-                <LoadingSpinner text="Loading history..." />
-              ) : messages.length === 0 ? (
-                <div className="chat-empty">
-                  <p className="font-mono">Ask anything about this prescription</p>
-                </div>
-              ) : (
-                messages.map((msg, idx) => (
-                  <ChatMessage
-                    key={idx}
-                    role={msg.role}
-                    content={msg.content}
-                    index={idx}
-                  />
-                ))
-              )}
-
-              {/* Typing indicator */}
-              {isSending && (
-                <div className="typing-indicator">
-                  <div className="typing-dot" style={{ animationDelay: '0s' }} />
-                  <div className="typing-dot" style={{ animationDelay: '0.15s' }} />
-                  <div className="typing-dot" style={{ animationDelay: '0.3s' }} />
-                </div>
-              )}
-              <div ref={chatEndRef} />
             </div>
 
             {/* Input */}

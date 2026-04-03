@@ -260,6 +260,7 @@
   flex-direction: column;
   height: 100%;
   overflow: hidden;
+  position: relative;
 }
 
 .chat-header {
@@ -313,6 +314,74 @@
   background: var(--color-accent-glow);
   border-color: rgba(0, 229, 160, 0.2);
   color: var(--color-accent);
+}
+
+/* Chat Body - The Magic Scroll Container */
+.chat-body {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: var(--space-md);
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border) transparent;
+}
+
+.chat-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.chat-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.chat-body::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 10px;
+}
+
+.chat-body::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-muted);
+}
+
+.voice-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: rgba(0, 170, 255, 0.05);
+  color: #00aaff;
+  font-size: 0.8125rem;
+  transition: all var(--transition-fast);
+  cursor: pointer;
+}
+
+.voice-btn:hover {
+  background: rgba(0, 170, 255, 0.15);
+  border-color: #00aaff;
+  box-shadow: 0 0 15px rgba(0, 170, 255, 0.2);
+}
+
+.voice-btn.speaking {
+  background: #00aaff;
+  color: #fff;
+  animation: pulse-blue 1.5s infinite;
+}
+
+@keyframes pulse-blue {
+  0% { box-shadow: 0 0 0 0 rgba(0, 170, 255, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(0, 170, 255, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(0, 170, 255, 0); }
+}
+
+.dashboard-insights {
+  margin: var(--space-md) var(--space-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  flex-shrink: 0;
 }
 
 
@@ -424,8 +493,9 @@
 /* Messages Area */
 .chat-messages {
   flex: 1;
-  overflow-y: auto;
+  /* Removed overflow-y: auto here because parent .chat-body handles it now */
   padding: var(--space-md) var(--space-lg);
+  min-height: 200px;
 }
 
 .chat-empty {
