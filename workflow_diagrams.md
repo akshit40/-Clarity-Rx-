@@ -10,17 +10,21 @@ flowchart TB
         C[Check OTC Safety]
     end
     
-    subgraph Frontend["🖥️ Streamlit Frontend"]
-        D[app.py]
+    subgraph Frontend["🖥️ React/Vite Frontend"]
+        D[Dashboard.jsx UI]
+        D1[QR Code Generator]
+        D2[PDF Generator]
     end
     
-    subgraph Backend["⚙️ Backend Services"]
+    subgraph Backend["⚙️ Backend FastAPI Services"]
         E[AuthManager]
         F[PrescriptionExtractor]
-        G[RAGGraph]
+        F1[ImageProcessor & Fuzzy Matcher]
+        G[RAGGraph (LangChain)]
         H[OTCManager]
         I[MemoryManager]
         J[VectorStoreManager]
+        X[GuardianService]
     end
     
     subgraph External["☁️ External Services"]
@@ -36,8 +40,11 @@ flowchart TB
     D --> F
     D --> G
     D --> H
+    D --> X
+    F --> F1
+    F1 --> M
+    X --> M
     E --> K
-    F --> M
     G --> J
     G --> M
     G --> I
@@ -92,32 +99,33 @@ flowchart TD
     C --> E[PrescriptionExtractor]
     D --> E
     
-    E --> F[Send to Gemini Vision]
-    F --> G[Extract Structured JSON]
+    E --> V[ImageProcessor: Sharpen/Contrast]
+    V --> F[Send to Gemini Vision]
+    F --> G[Extract Raw JSON Data]
     
     G --> H{Extraction Success?}
-    H -->|No| I[Show Error]
-    H -->|Yes| J[Parse Medicine Details]
+    H -->|No| I[Extract Clinical Notes]
+    H -->|Yes| J[FuzzyDrugMatcher: Typo Correct]
     
-    J --> K[Format Text Content]
+    J --> K[Format Medicine Text]
+    I --> K
+    
     K --> L[Generate Embeddings]
     L --> M[Store in Pinecone]
     
     M --> N[Create Session in MongoDB]
-    N --> O[Update UI with Details]
-    O --> P[Ready for Chat]
+    N --> O[Update UI Details & Timeline]
+    O --> P[Ready for Chat & Guardian Check]
     
     subgraph Extracted["📋 Extracted Data"]
-        Q[Date]
-        R[Medicines List]
-        S[Dosage & Timing]
-        T[Notes]
+        Q[Date & Clinical Summaries]
+        R[Corrected Medicines List]
+        S[Dosage, Timeline & Frequency]
     end
     
-    G --> Q
-    G --> R
+    J --> R
+    I --> Q
     G --> S
-    G --> T
 ```
 
 ---
@@ -207,15 +215,42 @@ flowchart TD
     K --> S
     
     S --> T[Save to MongoDB]
-    T --> U[Display in UI]
+    T --> U[Display in Dashboard UI]
     
     subgraph Results["📊 Final Output"]
-        V["✅ OTC Medicines"]
-        W["⚠️ Consult Medicines"]
+        V["✅ Safe (OTC Medicines)"]
+        W["⚠️ Consult Doctor"]
     end
     
     U --> V
     U --> W
+```
+
+---
+
+## 5.1. Guardian Safety Shield & Export Flow (v5.0)
+
+```mermaid
+flowchart TD
+    A[User clicks 'Run Guardian Analysis'] --> B[Call GuardianService API]
+    B --> C[Format Prompt with Extracted details]
+    
+    subgraph GeminiPharmacist["🤖 AI Clinical Pharmacist"]
+        D[Check DDI - Drug Interactions]
+        E[Identify Generic Name Savings]
+        F[Determine Food/Diet Safety]
+        G[Suggest Lifestyle Recovery Tips]
+    end
+    
+    C --> GeminiPharmacist
+    GeminiPharmacist --> H[Return JSON Response]
+    H --> I[Update Dashboard UI]
+    
+    I --> J{Export Choices}
+    J -->|PDF| K[jsPDF: Generate Clean Medical Report Download]
+    J -->|QR| L[qrcode.react: Render scannable QR string for Pharmacists]
+    
+    I --> M[Desktop Notification Reminders Set]
 ```
 
 ---
@@ -318,8 +353,10 @@ sequenceDiagram
 | Step | Component | Input | Output | Storage |
 |------|-----------|-------|--------|---------|
 | 1 | AuthManager | Username/Password | Session Token | MongoDB |
-| 2 | Extractor | PDF/Image | Structured JSON | - |
-| 3 | VectorStore | Text Chunks | Embeddings | Pinecone |
-| 4 | MemoryManager | Session Data | Persisted History | MongoDB |
-| 5 | RAGGraph | User Query | AI Answer | - |
-| 6 | OTCManager | Medicine List | Safety Classification | MongoDB (cached) |
+| 2 | ImageProcessor | Raw Image | Sharpened/Contrast Image | RAM |
+| 3 | Extractor | PDF/Image | Structured JSON / Clinical Notes | - |
+| 4 | FuzzyMatcher | Rough JSON | FDA Corrected Names | - |
+| 5 | VectorStore | Text Chunks | Embeddings | Pinecone |
+| 6 | GuardianService | Medicine List | DDI, Generics, Food Safety | - |
+| 7 | OTCManager | Medicine List | Safety Classification | MongoDB (cached) |
+| 8 | UI Layer | JSON Data | Rendered Timeline, PDF, QR | Client Browser |
