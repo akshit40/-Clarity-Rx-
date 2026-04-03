@@ -103,3 +103,11 @@ export async function checkOTC(sessionId, prescriptionId, detailsText) {
 export async function getOTCResult(sessionId) {
   return request(`/otc/result/${sessionId}`);
 }
+
+// ── Guardian ────────────────────────────────────────────────
+export async function getGuardianAnalysis(sessionId, detailsText) {
+  return request('/prescriptions/guardian', {
+    method: 'POST',
+    body: JSON.stringify({ session_id: sessionId, details_text: detailsText }),
+  });
+}

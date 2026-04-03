@@ -7,11 +7,14 @@ import {
   getChatHistory,
   sendMessage,
   checkOTC,
+  getGuardianAnalysis,
 } from '../api/client';
 import FileUpload from '../components/FileUpload';
 import ChatMessage from '../components/ChatMessage';
 import LoadingSpinner from '../components/LoadingSpinner';
 import DosageTimeline from '../components/DosageTimeline';
+import { jsPDF } from 'jspdf';
+import { QRCodeSVG } from 'qrcode.react';
 import './Dashboard.css';
 
 export default function Dashboard() {
@@ -30,6 +33,10 @@ export default function Dashboard() {
   const [otcResult, setOtcResult] = useState(null);
   const [otcLoading, setOtcLoading] = useState(false);
   const [showOtc, setShowOtc] = useState(false);
+  const [guardianResult, setGuardianResult] = useState(null);
+  const [guardianLoading, setGuardianLoading] = useState(false);
+  const [showGuardian, setShowGuardian] = useState(false);
+  const [showQR, setShowQR] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [extractedData, setExtractedData] = useState(null);
   const [isSpeaking, setIsSpeaking] = useState(false);
@@ -61,6 +68,8 @@ export default function Dashboard() {
     setMessages([]);
     setOtcResult(null);
     setShowOtc(false);
+    setGuardianResult(null);
+    setShowGuardian(false);
     setIsLoadingHistory(true);
 
     try {
@@ -148,6 +157,71 @@ export default function Dashboard() {
     } finally {
       setOtcLoading(false);
     }
+  };
+
+  const handleGuardianCheck = async () => {
+    if (!sessionId) {
+      alert("Session not ready.");
+      return;
+    }
+    if (showGuardian) {
+      setShowGuardian(false);
+      return;
+    }
+
+    setShowGuardian(true);
+    if (guardianResult) return;
+
+    setGuardianLoading(true);
+    try {
+      const data = await getGuardianAnalysis(sessionId, sessionDetails || "No content details");
+      setGuardianResult(data.result);
+    } catch (err) {
+      console.error('Guardian check failed:', err);
+      setGuardianResult({ error: err.message });
+    } finally {
+      setGuardianLoading(false);
+    }
+  };
+
+  const handleExportPDF = () => {
+    const doc = new jsPDF();
+    doc.setFontSize(22);
+    doc.text("Clarity Rx: Medical Report", 20, 20);
+    
+    doc.setFontSize(14);
+    doc.text(`Title: ${activePrescription?.title || 'Unknown'}`, 20, 35);
+    
+    doc.setFontSize(12);
+    const splitDetails = doc.splitTextToSize(sessionDetails || 'No details available', 170);
+    doc.text(splitDetails, 20, 50);
+
+    if (guardianResult && !guardianResult.error) {
+      let yPos = 50 + (splitDetails.length * 6) + 10;
+      doc.setFontSize(14);
+      doc.text("Guardian Safety Analysis:", 20, yPos);
+      doc.setFontSize(12);
+      doc.setTextColor(200, 0, 0); // Red for DDI
+      doc.text(`DDI Alert: ${guardianResult.ddi_alert || 'None'}`, 20, yPos + 10);
+      doc.setTextColor(0, 0, 0);
+    }
+
+    doc.save(`ClarityRx_Report_${activePrescription?.id || 'doc'}.pdf`);
+  };
+
+  const handleSetReminder = () => {
+    if (!("Notification" in window)) {
+      alert("This browser does not support desktop notification");
+      return;
+    }
+    Notification.requestPermission().then(function (permission) {
+      if (permission === "granted") {
+        new Notification("Clarity Rx: Reminder Set!", {
+          body: "We will remind you when it's time to take your medication.",
+          icon: "💊"
+        });
+      }
+    });
   };
 
   const handleSpeak = () => {
@@ -283,8 +357,16 @@ export default function Dashboard() {
                   disabled={otcLoading}
                 >
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                  {otcLoading ? 'Checking...' : 'OTC Check'}
+                  {otcLoading ? 'Checking...' : 'OTC'}
                 </button>
+                <div style={{ display: 'flex', gap: '8px', borderLeft: '1px solid var(--color-border)', paddingLeft: '8px', marginLeft: '4px' }}>
+                  <button className="voice-btn" onClick={handleExportPDF} title="Export PDF" style={{color: '#ff4b4b', borderColor: 'transparent', background: 'rgba(255, 75, 75, 0.1)'}}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                  </button>
+                  <button className="voice-btn" onClick={handleSetReminder} title="Set Dose Reminders" style={{color: '#ffb300', borderColor: 'transparent', background: 'rgba(255, 179, 0, 0.1)'}}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 17H2a3 3 0 0 0 3-3V9a7 7 0 0 1 14 0v5a3 3 0 0 0 3 3zm-8.27 4a2 2 0 0 1-3.46 0"></path></svg>
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -298,11 +380,91 @@ export default function Dashboard() {
                   <details className="medicine-details glass-panel">
                     <summary className="details-summary">
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
-                      <span className="font-display">Medicine Details</span>
+                      <span className="font-display">Medicine Details & Safety</span>
                     </summary>
-                    <pre className="details-content font-mono">{sessionDetails}</pre>
+                    <div className="details-content font-mono" style={{ padding: '0 1rem 1rem' }}>
+                      <pre>{sessionDetails}</pre>
+                      
+                      <div style={{ marginTop: '1rem', borderTop: '1px solid var(--color-border)', paddingTop: '1rem' }}>
+                        <button className="otc-check-btn active" onClick={handleGuardianCheck} disabled={guardianLoading} style={{ background: '#7e57c2', color: 'white', borderColor: '#7e57c2', width: '100%', justifyContent: 'center' }}>
+                          {guardianLoading ? '🛡️ Analyzing Risks & Savings...' : '🛡️ Run Full Guardian Analysis'}
+                        </button>
+                      </div>
+                    </div>
                   </details>
                 </div>
+              )}
+
+              {/* Guardian Results */}
+              {showGuardian && (
+                <div className="guardian-results animate-in" style={{ margin: '0 2rem 1rem 2rem', background: 'rgba(126, 87, 194, 0.05)', border: '1px solid rgba(126, 87, 194, 0.2)', borderRadius: '12px', padding: '1.5rem' }}>
+                  {guardianLoading ? (
+                    <LoadingSpinner text="Consulting virtual pharmacist..." />
+                  ) : guardianResult?.error ? (
+                    <div className="form-alert alert-error">{guardianResult.error}</div>
+                  ) : guardianResult ? (
+                    <div className="guardian-grid" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                      
+                      {/* DDI Alert */}
+                      <div className="guardian-card" style={{ background: guardianResult.ddi_alert !== 'None' ? 'rgba(255, 75, 75, 0.1)' : 'rgba(0, 230, 118, 0.1)', padding: '1rem', borderRadius: '8px', borderLeft: guardianResult.ddi_alert !== 'None' ? '4px solid #ff4b4b' : '4px solid #00e676' }}>
+                        <h4 style={{ margin: '0 0 0.5rem 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <span>{guardianResult.ddi_alert !== 'None' ? '🚨' : '✅'}</span> Drug Interaction (DDI)
+                        </h4>
+                        <p style={{ margin: 0, fontSize: '0.875rem' }}>{guardianResult.ddi_alert}</p>
+                      </div>
+
+                      {/* Generics */}
+                      {guardianResult.generics?.length > 0 && (
+                        <div className="guardian-card" style={{ background: 'rgba(0, 170, 255, 0.05)', padding: '1rem', borderRadius: '8px', borderLeft: '4px solid #00aaff' }}>
+                          <h4 style={{ margin: '0 0 0.5rem 0', display: 'flex', alignItems: 'center', gap: '8px' }}>💰 Cheaper Alternatives</h4>
+                          <ul style={{ margin: 0, paddingLeft: '1.5rem', fontSize: '0.875rem' }}>
+                            {guardianResult.generics.map((g, idx) => (
+                              <li key={idx}><strong>{g.brand}</strong> &rarr; Try <b>{g.generic}</b></li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+
+                      {/* Food & Lifestyle 2-col Grid */}
+                      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '1rem' }}>
+                        <div className="guardian-card" style={{ background: 'rgba(255, 179, 0, 0.05)', padding: '1rem', borderRadius: '8px' }}>
+                          <h4 style={{ margin: '0 0 0.5rem 0' }}>🍎 Food/Diet Safety</h4>
+                          <ul style={{ margin: 0, paddingLeft: '1rem', fontSize: '0.8125rem' }}>
+                            {guardianResult.food_warnings?.map((w, i) => <li key={i}>{w}</li>)}
+                          </ul>
+                        </div>
+                        <div className="guardian-card" style={{ background: 'rgba(200, 230, 201, 0.05)', padding: '1rem', borderRadius: '8px' }}>
+                          <h4 style={{ margin: '0 0 0.5rem 0' }}>🌿 Recovery Actions</h4>
+                          <ul style={{ margin: 0, paddingLeft: '1rem', fontSize: '0.8125rem' }}>
+                            {guardianResult.lifestyle_tips?.map((t, i) => <li key={i}>{t}</li>)}
+                          </ul>
+                        </div>
+                      </div>
+                      
+                      {/* Side Effects */}
+                      <div className="guardian-card" style={{ padding: '0.5rem 1rem' }}>
+                         <span style={{fontSize: '0.8125rem', color: 'var(--color-text-muted)'}}>Common Side Effects to watch: {guardianResult.side_effects?.join(", ")}</span>
+                      </div>
+
+                    </div>
+                  ) : null}
+                </div>
+              )}
+
+              {/* Pharmacist QR Panel */}
+              <div style={{ margin: '0 2rem 1rem', display: 'flex', justifyContent: 'flex-end' }}>
+                <button 
+                  onClick={() => setShowQR(!showQR)}
+                  style={{ background: 'transparent', border: 'none', color: 'var(--color-text-muted)', fontSize: '0.75rem', cursor: 'pointer', textDecoration: 'underline' }}>
+                  {showQR ? 'Hide Pharmacist Share QR' : '📱 Share with Pharmacist via QR'}
+                </button>
+              </div>
+              
+              {showQR && (
+                 <div className="animate-in" style={{ margin: '0 2rem 1rem', background: 'white', padding: '1.5rem', borderRadius: '12px', display: 'inline-block', textAlign: 'center' }}>
+                   <QRCodeSVG value={sessionDetails || "No data"} size={128} />
+                   <p style={{ margin: '0.5rem 0 0 0', color: '#000', fontSize: '0.75rem', fontWeight: 600 }}>Scan for clean text</p>
+                 </div>
               )}
 
               {/* OTC Results */}

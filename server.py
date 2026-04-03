@@ -271,6 +271,22 @@ async def get_otc_result(session_id: str):
     return {"result": result}
 
 
+# ── Guardian Endpoints ─────────────────────────────────────────────
+
+from pydantic import BaseModel
+
+class GuardianRequest(BaseModel):
+    session_id: str
+    details_text: str
+
+from src.guardian_service import guardian_service
+
+@app.post("/api/prescriptions/guardian")
+async def get_guardian_analysis(req: GuardianRequest):
+    analysis = guardian_service.analyze(req.details_text)
+    return {"result": analysis}
+
+
 # ── Health Check ──────────────────────────────────────────────────
 
 @app.get("/api/health")
