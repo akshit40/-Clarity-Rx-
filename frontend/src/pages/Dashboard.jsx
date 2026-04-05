@@ -330,43 +330,47 @@ export default function Dashboard() {
               <p className="welcome-text">
                 Upload a prescription or select a chat from the sidebar to begin.
               </p>
-              <div className="bento-grid animate-in-delayed">
-                <div 
-                  className="bento-tile glass-panel"
-                  onClick={() => {
-                    setSidebarOpen(true);
-                    setTimeout(() => {
-                      document.querySelector('.file-upload-zone input[type="file"]')?.click();
-                    }, 100);
-                  }}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginTop: '2rem', alignItems: 'center' }}>
+                <label
+                  htmlFor="welcome-upload"
+                  style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', padding: '0.75rem 1.5rem', background: 'var(--color-bg-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', cursor: 'pointer', fontSize: '0.9375rem', color: 'var(--color-text-primary)', width: '220px', justifyContent: 'center' }}
                 >
-                  <span className="tile-icon">📸</span>
-                  <span className="tile-label">Analysis Pipeline</span>
-                  <p className="tile-value">Neural-Extraction & Vision AI Analysis</p>
-                </div>
-                <div 
-                  className="bento-tile glass-panel"
+                  📸 Upload &amp; Extract
+                </label>
+                <input id="welcome-upload" type="file" accept="image/*,.pdf" hidden onChange={(e) => {
+                  const file = e.target.files[0];
+                  if (file) {
+                    setSidebarOpen(true);
+                    // trigger same upload via sidebar
+                    const sidebarInput = document.querySelector('.file-upload-zone input[type="file"]');
+                    if (sidebarInput) {
+                      const dt = new DataTransfer();
+                      dt.items.add(file);
+                      sidebarInput.files = dt.files;
+                      sidebarInput.dispatchEvent(new Event('change', { bubbles: true }));
+                    }
+                    e.target.value = null;
+                  }
+                }} />
+                <button
+                  style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', padding: '0.75rem 1.5rem', background: 'var(--color-bg-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', cursor: 'pointer', fontSize: '0.9375rem', color: 'var(--color-text-primary)', width: '220px', justifyContent: 'center' }}
                   onClick={() => {
                     setSidebarOpen(true);
                     setTimeout(() => {
                       const firstChat = document.querySelector('.chat-item');
                       if (firstChat) firstChat.click();
                       else alert('Please upload a prescription first.');
-                    }, 100);
+                    }, 150);
                   }}
                 >
-                  <span className="tile-icon">💬</span>
-                  <span className="tile-label">Contextual RAG</span>
-                  <p className="tile-value">Intuitive Chat with Medical Memory</p>
-                </div>
-                <div 
-                  className="bento-tile glass-panel"
+                  💬 Ask Question
+                </button>
+                <button
+                  style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', padding: '0.75rem 1.5rem', background: 'var(--color-bg-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', cursor: 'pointer', fontSize: '0.9375rem', color: 'var(--color-text-primary)', width: '220px', justifyContent: 'center' }}
                   onClick={() => navigate('/otc')}
                 >
-                  <span className="tile-icon">✅</span>
-                  <span className="tile-label">Safety Shield</span>
-                  <p className="tile-value">Real-time OTC Verification System</p>
-                </div>
+                  ✅ OTC Check
+                </button>
               </div>
             </div>
           </div>

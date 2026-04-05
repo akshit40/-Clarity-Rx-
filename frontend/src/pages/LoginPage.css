@@ -215,6 +215,17 @@
   color: var(--color-text-muted);
 }
 
+/* Fix: Stop browser autofill from making inputs white */
+.input-wrap input:-webkit-autofill,
+.input-wrap input:-webkit-autofill:hover,
+.input-wrap input:-webkit-autofill:focus,
+.input-wrap input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0px 1000px #0b1624 inset !important;
+  -webkit-text-fill-color: var(--color-text-primary) !important;
+  caret-color: var(--color-text-primary);
+  transition: background-color 5000s ease-in-out 0s;
+}
+
 
 /* ─── Alerts ────────────────────────────────────────────────── */
 
