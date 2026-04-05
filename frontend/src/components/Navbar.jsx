@@ -14,7 +14,6 @@ export default function Navbar() {
           <img src="/logo.png" alt="Clarity Rx" className="brand-logo" />
           <span className="brand-text">
             <span className="brand-name">Clarity Rx</span>
-            <span className="brand-tag font-mono">v5.0</span>
           </span>
         </Link>
 

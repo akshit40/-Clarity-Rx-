@@ -1,10 +1,10 @@
 <div align="center">
   <img src="docs/logo.png" alt="Clarity Rx Logo" width="160" />
-  <h1>Clarity Rx 5.0 (The Guardian)</h1>
+  <h1>Clarity Rx (The Guardian)</h1>
   <p><strong>Professional Medical AI & Clinical Safety Intelligence</strong></p>
 
   <p>
-    <img src="https://img.shields.io/badge/Status-v5.0_Stable-00E5A0?style=for-the-badge&logo=react" alt="Status" />
+    <img src="https://img.shields.io/badge/Status-Stable-00E5A0?style=for-the-badge&logo=react" alt="Status" />
     <img src="https://img.shields.io/badge/UI-Medical_Grade-blue?style=for-the-badge" alt="UI Style" />
     <img src="https://img.shields.io/badge/AI-Gemini_Flash-FF6F00?style=for-the-badge&logo=google-gemini" alt="AI Model" />
   </p>
@@ -12,13 +12,11 @@
 
 ---
 
-![App Header](docs/logo.png)
-
 ## 🌟 Overview
 
-**Clarity Rx** is a premium, clinical-grade medical assistant that bridges the gap between complex prescriptions and patient safety. Re-engineered in **v5.0** with a high-fidelity "Bioluminescent" medical interface, it leverages state-of-the-art **Vision AI** to translate messy physician handwriting while actively shielding patients from drug-drug interactions (DDI), medication risks, and lifestyle complications.
+**Clarity Rx** is a premium, clinical-grade medical assistant that bridges the gap between complex prescriptions and patient safety. Re-engineered with a high-fidelity "Bioluminescent" medical interface, it leverages state-of-the-art **Vision AI** to translate messy physician handwriting while actively shielding patients from drug-drug interactions (DDI), medication risks, and lifestyle complications.
 
-### 🎨 High-Fidelity UI/UX (New in v5.0)
+### 🎨 High-Fidelity UI/UX
 - **Bioluminescent Interface**: Modern medical theme featuring pulsing "Pulse" animations and emerald glowing accents.
 - **AI Typewriter Chat**: Intelligent character-by-character response rendering for better clinical consultation flow.
 - **Guardian Command Center**: Redesigned dashboard with a clear primary/secondary action hierarchy for critical patient tasks.
