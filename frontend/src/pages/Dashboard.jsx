@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {
   listPrescriptions,
@@ -19,6 +20,7 @@ import './Dashboard.css';
 
 export default function Dashboard() {
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   // State
   const [prescriptions, setPrescriptions] = useState([]);
@@ -310,17 +312,41 @@ export default function Dashboard() {
                 Upload a prescription or select a chat from the sidebar to begin.
               </p>
               <div className="welcome-features">
-                <div className="feature-card glass-panel">
+                <div 
+                  className="feature-card glass-panel"
+                  style={{ cursor: 'pointer' }}
+                  onClick={() => {
+                    setSidebarOpen(true);
+                    setTimeout(() => {
+                      document.querySelector('.file-upload-zone input[type="file"]')?.click();
+                    }, 100);
+                  }}
+                >
                   <span className="feature-icon">📸</span>
                   <h3>Upload & Extract</h3>
                   <p>OCR-powered prescription analysis</p>
                 </div>
-                <div className="feature-card glass-panel">
+                <div 
+                  className="feature-card glass-panel"
+                  style={{ cursor: 'pointer' }}
+                  onClick={() => {
+                    setSidebarOpen(true);
+                    setTimeout(() => {
+                      const firstChat = document.querySelector('.chat-item');
+                      if (firstChat) firstChat.click();
+                      else alert('Please upload a prescription first.');
+                    }, 100);
+                  }}
+                >
                   <span className="feature-icon">💬</span>
                   <h3>Ask Questions</h3>
                   <p>Chat with AI about your medicines</p>
                 </div>
-                <div className="feature-card glass-panel">
+                <div 
+                  className="feature-card glass-panel"
+                  style={{ cursor: 'pointer' }}
+                  onClick={() => navigate('/otc')}
+                >
                   <span className="feature-icon">✅</span>
                   <h3>OTC Check</h3>
                   <p>Verify over-the-counter safety</p>

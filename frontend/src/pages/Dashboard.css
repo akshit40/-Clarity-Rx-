@@ -151,9 +151,9 @@
 }
 
 
-/* Mobile sidebar FAB */
+/* Sidebar FAB */
 .sidebar-fab {
-  display: none;
+  display: flex;
   position: fixed;
   bottom: 90px;
   left: var(--space-md);
