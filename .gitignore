@@ -1,6 +1,7 @@
 # Environment variables
 .env
 *.local
+.skill-archive/
 
 # Node.js
 node_modules/
