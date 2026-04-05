@@ -53,7 +53,7 @@ export default function LoginPage() {
         {/* Header */}
         <div className="login-header">
           <div className="login-logo animate-float">
-            <span className="logo-icon">💊</span>
+            <img src="/logo.png" alt="Clarity Rx" className="login-brand-img" />
           </div>
           <h1 className="login-title font-display stagger-1">
             <span className="text-gradient">Clarity Rx</span>

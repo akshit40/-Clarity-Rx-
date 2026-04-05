@@ -1,48 +1,45 @@
 <div align="center">
-  <img src="docs/logo.png" alt="Clarity Rx Logo" width="120" />
+  <img src="docs/logo.png" alt="Clarity Rx Logo" width="160" />
   <h1>Clarity Rx 5.0 (The Guardian)</h1>
-  <p><strong>Intelligent Prescription RAG Assistant & Guardian Safety Shield</strong></p>
+  <p><strong>Professional Medical AI & Clinical Safety Intelligence</strong></p>
 
   <p>
-    <img src="https://img.shields.io/badge/Status-Active-success?style=for-the-badge" alt="Status" />
-    <img src="https://img.shields.io/badge/License-MIT-blue?style=for-the-badge" alt="License" />
-    <img src="https://img.shields.io/badge/AI-Gemini%20Flash-orange?style=for-the-badge" alt="AI Model" />
-    <img src="https://img.shields.io/badge/Vector%20DB-Pinecone-green?style=for-the-badge" alt="Vector DB" />
+    <img src="https://img.shields.io/badge/Status-v5.0_Stable-00E5A0?style=for-the-badge&logo=react" alt="Status" />
+    <img src="https://img.shields.io/badge/UI-Medical_Grade-blue?style=for-the-badge" alt="UI Style" />
+    <img src="https://img.shields.io/badge/AI-Gemini_Flash-FF6F00?style=for-the-badge&logo=google-gemini" alt="AI Model" />
   </p>
 </div>
 
 ---
 
+![App Header](docs/logo.png)
+
 ## 🌟 Overview
 
-**Clarity Rx** is a professional-grade medical assistant designed to bridge the gap between complex medical prescriptions and patient understanding. By leveraging state-of-the-art **RAG (Retrieval-Augmented Generation)** architecture, advanced machine vision, and the new **Guardian Safety Shield**, Clarity Rx translates illegible physician handwriting into structured details while actively guarding patients against drug interactions, generic upcharging, and lifestyle risks.
+**Clarity Rx** is a premium, clinical-grade medical assistant that bridges the gap between complex prescriptions and patient safety. Re-engineered in **v5.0** with a high-fidelity "Bioluminescent" medical interface, it leverages state-of-the-art **Vision AI** to translate messy physician handwriting while actively shielding patients from drug-drug interactions (DDI), medication risks, and lifestyle complications.
 
-![App Screenshot](docs/screenshot.png)
+### 🎨 High-Fidelity UI/UX (New in v5.0)
+- **Bioluminescent Interface**: Modern medical theme featuring pulsing "Pulse" animations and emerald glowing accents.
+- **AI Typewriter Chat**: Intelligent character-by-character response rendering for better clinical consultation flow.
+- **Guardian Command Center**: Redesigned dashboard with a clear primary/secondary action hierarchy for critical patient tasks.
+- **Neural Upload Zone**: Interactive drag-and-drop file processing with holographic scanning effects.
 
-## ✨ Key Features (Updated for v5.0)
+### 🔍 Vision AI & Extraction
+- **Advanced Preprocessing Pipeline**: Automatically de-blurs, sharpens, and enhances contrast of medical prescriptions.
+- **Fuzzy Drug Matching**: Cross-references unreadable handwriting with clinical databases to auto-correct typos.
+- **Clinical Metadata**: intelligently detects and extracts clinical notes even when "No Medicines" are prescribed.
 
-### 🔍 Vision AI & Extraction (v4.0 Update)
-- **Advanced Preprocessing Pipeline**: Automatically de-blurs, sharpens, and enhances contrast of messy medical prescriptions.
-- **Fuzzy Drug Matching**: Cross-references unreadable handwriting with medical databases to auto-correct typos (e.g., Amoxiln -> Amoxicillin).
-- **Clinical Observation Support**: intelligently detects and extracts clinical notes even when "No Medicines" are prescribed.
+### 🛡️ Guardian Safety Shield
+- **DDI Checking**: AI-driven Drug-Drug Interaction alerts with critical risk indicators.
+- **Generic Savings Finder**: Suggests cost-effective generic alternatives for branded medications.
+- **Food & Diet Safety**: Personalized alerts on food/drink interactions for specific medications.
+- **Recovery & Lifestyle**: Evidence-based wellness tips and common side-effect tracking.
 
-### 🛡️ Guardian Safety Shield (New in v5.0)
-- **DDI Checking**: AI-driven Drug-Drug Interaction alerts (Red Alerts for dangerous combos).
-- **Generic Savings Finder**: Analyzes branded prescriptions and suggests up to 70% cheaper generic alternatives.
-- **Food & Diet Safety**: Personalized instructions on what foods/drinks to avoid with specific medicines.
-- **Side-Effects & Recovery**: Provides non-medical lifestyle tips and common side-effects to monitor.
-
-### 📲 Patient Accessibility & Tools (New in v5.0 & v3.0)
-- **PDF Export Generator**: One-click download of the "AI-Cleaned" medical report.
-- **QR 'Pharmacist Handshake'**: A scannable QR code to instantly share extracted prescription text with your pharmacist.
-- **Desktop Dose Reminders**: Browser-based notifications for intake times.
-- **Visual Dosage Timeline**: 24-hour visual breakdown of medicine schedules.
-- **Voice Output (Listen)**: Text-to-speech for visually impaired users.
-
-### 💬 Intelligent Medical Chat (RAG)
-- **Context-Aware Reasoning**: Ask complex questions about the prescription.
-- **Patient History Memory**: Remembers past prescriptions for holistic advice.
-- **OTC Verification**: Semantic search verifying if an OTC purchase is safe alongside current meds.
+### 📲 Patient Tools
+- **PDF Export**: Generate professional "AI-Cleaned" reports for discharge or records.
+- **QR Handshake**: Instantly share extracted text with pharmacists via secure QR codes.
+- **Dose Reminders**: Integrated browser-based intake notifications.
+- **Dosage Timeline**: 24-hour visual breakdown of complex medicine schedules.
 
 ---
 

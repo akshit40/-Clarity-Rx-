@@ -11,10 +11,10 @@ export default function Navbar() {
       <div className="navbar-inner">
         {/* Brand */}
         <Link to="/" className="navbar-brand">
-          <span className="brand-icon">💊</span>
+          <img src="/logo.png" alt="Clarity Rx" className="brand-logo" />
           <span className="brand-text">
             <span className="brand-name">Clarity Rx</span>
-            <span className="brand-tag font-mono">v2.0</span>
+            <span className="brand-tag font-mono">v5.0</span>
           </span>
         </Link>
 

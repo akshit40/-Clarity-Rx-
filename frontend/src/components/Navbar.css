@@ -34,9 +34,22 @@
   flex-shrink: 0;
 }
 
-.brand-icon {
-  font-size: 1.5rem;
-  animation: float 3s ease-in-out infinite;
+.brand-logo {
+  width: 32px;
+  height: 32px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 229, 160, 0.3);
+  background: var(--color-bg-surface);
+  padding: 1px;
+  filter: drop-shadow(0 0 8px rgba(0, 229, 160, 0.4));
+  animation: float 3s ease-in-out infinite, glow-pulse 4s infinite;
+  box-shadow: 0 0 10px rgba(0, 229, 160, 0.2);
+}
+
+@keyframes glow-pulse {
+  0%, 100% { filter: drop-shadow(0 0 8px rgba(0, 229, 160, 0.4)); }
+  50% { filter: drop-shadow(0 0 15px rgba(0, 229, 160, 0.7)); }
 }
 
 .brand-text {
