@@ -60,6 +60,15 @@ export default function Dashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [extractedData, setExtractedData] = useState(null);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [toasts, setToasts] = useState([]);
+
+  const showToast = (message, type = 'success') => {
+    const id = Date.now();
+    setToasts(prev => [...prev, { id, message, type }]);
+    setTimeout(() => {
+      setToasts(prev => prev.filter(t => t.id !== id));
+    }, 4000);
+  };
 
   const chatEndRef = useRef(null);
   const inputRef = useRef(null);
@@ -112,6 +121,7 @@ export default function Dashboard() {
     setIsUploading(true);
     try {
       const data = await uploadPrescription(file, user);
+      showToast('Prescription uploaded successfully!');
       await loadPrescriptions();
 
       // Auto-select the new prescription
@@ -121,8 +131,7 @@ export default function Dashboard() {
       };
       await selectPrescription(newP);
     } catch (err) {
-      console.error('Upload failed:', err);
-      alert(err.message || 'Upload failed');
+      showToast(err.message || 'Upload failed', 'error');
     } finally {
       setIsUploading(false);
     }
@@ -267,12 +276,13 @@ export default function Dashboard() {
 
   return (
     <div className="dashboard">
+      <a href="#chat-input" className="skip-link">Skip to main content</a>
       {/* Sidebar */}
       <aside className={`sidebar ${sidebarOpen ? 'open' : 'closed'}`}>
         <div className="sidebar-header">
           <h2 className="sidebar-title font-display">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-            Prescriptions
+            Recent
           </h2>
           <button className="sidebar-toggle" onClick={() => setSidebarOpen(!sidebarOpen)}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
@@ -282,23 +292,29 @@ export default function Dashboard() {
         {/* Upload */}
         <div className="sidebar-upload">
           <FileUpload onUpload={handleUpload} isUploading={isUploading} />
-          {isUploading && <NeuralScanner />}
         </div>
 
         {/* Chat List */}
         <div className="sidebar-list">
-          {prescriptions.length === 0 ? (
-            <div className="sidebar-empty">
+          <div className="sidebar-section-label font-mono stagger-1">Recent Sessions</div>
+          {prescriptions.length === 0 && !isUploading ? (
+            <div className="sidebar-empty stagger-2">
               <span className="empty-icon">📋</span>
-              <p className="font-mono">No prescriptions yet</p>
+              <p className="font-mono" style={{ opacity: 0.5 }}>No sessions yet</p>
+            </div>
+          ) : prescriptions.length === 0 && isUploading ? (
+            <div className="sidebar-skeletons stagger-2">
+              <div className="skeleton-row" style={{ margin: '12px', width: '80%' }} />
+              <div className="skeleton-row" style={{ margin: '12px', width: '60%' }} />
+              <div className="skeleton-row" style={{ margin: '12px', width: '90%' }} />
             </div>
           ) : (
             prescriptions.map((p, idx) => (
               <button
                 key={p.id}
-                className={`chat-item ${activePrescription?.id === p.id ? 'active' : ''}`}
+                className={`chat-item stagger-${Math.min(idx + 1, 5)} ${activePrescription?.id === p.id ? 'active' : ''}`}
                 onClick={() => selectPrescription(p)}
-                style={{ animationDelay: `${idx * 0.05}s` }}
+                title={p.title}
               >
                 <div className="chat-item-icon">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
@@ -322,18 +338,27 @@ export default function Dashboard() {
         {!activePrescription ? (
           /* Welcome State */
           <div className="welcome-state">
+            <div className="welcome-bg">
+              <div className="welcome-orb welcome-orb-1" />
+              <div className="welcome-orb welcome-orb-2" />
+              <div className="welcome-grid" />
+            </div>
             <div className="welcome-content animate-in">
-              <div className="welcome-icon animate-float">💊</div>
-              <h1 className="welcome-title font-display">
+              <div className="welcome-icon-wrap animate-float">
+                <span className="welcome-pill">💊</span>
+                <div className="welcome-pill-glow" />
+              </div>
+              <h1 className="welcome-title font-display stagger-1">
                 Welcome to <span className="text-gradient">Clarity Rx</span>
               </h1>
-              <p className="welcome-text">
-                Upload a prescription or select a chat from the sidebar to begin.
+              <p className="welcome-text stagger-2">
+                Upload a prescription or select a session to begin analysis.
               </p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginTop: '2rem', alignItems: 'center' }}>
+              
+              <div className="welcome-actions">
                 <label
                   htmlFor="welcome-upload"
-                  style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', padding: '0.75rem 1.5rem', background: 'var(--color-bg-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', cursor: 'pointer', fontSize: '0.9375rem', color: 'var(--color-text-primary)', width: '220px', justifyContent: 'center' }}
+                  className="welcome-btn welcome-btn-primary stagger-3"
                 >
                   📸 Upload &amp; Extract
                 </label>
@@ -341,7 +366,6 @@ export default function Dashboard() {
                   const file = e.target.files[0];
                   if (file) {
                     setSidebarOpen(true);
-                    // trigger same upload via sidebar
                     const sidebarInput = document.querySelector('.file-upload-zone input[type="file"]');
                     if (sidebarInput) {
                       const dt = new DataTransfer();
@@ -352,21 +376,23 @@ export default function Dashboard() {
                     e.target.value = null;
                   }
                 }} />
+                
                 <button
-                  style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', padding: '0.75rem 1.5rem', background: 'var(--color-bg-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', cursor: 'pointer', fontSize: '0.9375rem', color: 'var(--color-text-primary)', width: '220px', justifyContent: 'center' }}
+                  className="welcome-btn welcome-btn-secondary stagger-4"
                   onClick={() => {
                     setSidebarOpen(true);
                     setTimeout(() => {
                       const firstChat = document.querySelector('.chat-item');
                       if (firstChat) firstChat.click();
-                      else alert('Please upload a prescription first.');
+                      else showToast('Please upload a prescription first', 'error');
                     }, 150);
                   }}
                 >
                   💬 Ask Question
                 </button>
+                
                 <button
-                  style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', padding: '0.75rem 1.5rem', background: 'var(--color-bg-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', cursor: 'pointer', fontSize: '0.9375rem', color: 'var(--color-text-primary)', width: '220px', justifyContent: 'center' }}
+                  className="welcome-btn welcome-btn-secondary stagger-5"
                   onClick={() => navigate('/otc')}
                 >
                   ✅ OTC Check
@@ -430,14 +456,16 @@ export default function Dashboard() {
                     </summary>
                     <div className="details-content font-mono" style={{ padding: '0 1rem 1rem' }}>
                       <pre>{sessionDetails}</pre>
-                      
-                      <div style={{ marginTop: '1rem', borderTop: '1px solid var(--color-border)', paddingTop: '1rem' }}>
-                        <button className="otc-check-btn active" onClick={handleGuardianCheck} disabled={guardianLoading} style={{ background: '#7e57c2', color: 'white', borderColor: '#7e57c2', width: '100%', justifyContent: 'center' }}>
-                          {guardianLoading ? '🛡️ Analyzing Risks & Savings...' : '🛡️ Run Full Guardian Analysis'}
-                        </button>
-                      </div>
                     </div>
                   </details>
+
+                  <div className="guardian-quick-action animate-in-delayed">
+                    <button className="guardian-btn-prominent" onClick={handleGuardianCheck} disabled={guardianLoading}>
+                      <span className="guardian-btn-icon">🛡️</span>
+                      {guardianLoading ? 'Analyzing Risks & Savings...' : 'Run Full Guardian Safety Analysis'}
+                      <div className="btn-glow" />
+                    </button>
+                  </div>
                 </div>
               )}
 
@@ -615,6 +643,20 @@ export default function Dashboard() {
           </div>
         )}
       </main>
+
+      {/* Mobile Backdrop Overlay */}
+      {sidebarOpen && (
+        <div className="sidebar-backdrop" onClick={() => setSidebarOpen(false)} />
+      )}
+
+      {/* Toast Notifications */}
+      <div className="toast-container">
+        {toasts.map(t => (
+          <div key={t.id} className={`toast-item ${t.type === 'error' ? 'toast-error' : ''}`}>
+            {t.type === 'error' ? '⚠️' : '✅'} {t.message}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

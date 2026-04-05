@@ -49,20 +49,20 @@ export default function LoginPage() {
         <div className="bg-grid" />
       </div>
 
-      <div className="login-container animate-in">
+      <div className={`login-container animate-in ${error ? 'animate-shake' : ''}`}>
         {/* Header */}
         <div className="login-header">
           <div className="login-logo animate-float">
             <span className="logo-icon">💊</span>
           </div>
-          <h1 className="login-title font-display">
+          <h1 className="login-title font-display stagger-1">
             <span className="text-gradient">Clarity Rx</span>
           </h1>
-          <p className="login-subtitle">AI Prescription Assistant</p>
+          <p className="login-subtitle stagger-2">AI Prescription Assistant</p>
         </div>
 
         {/* Tabs */}
-        <div className="login-tabs">
+        <div className="login-tabs stagger-3">
           <button
             className={`tab-btn ${activeTab === 'login' ? 'active' : ''}`}
             onClick={() => { setActiveTab('login'); setError(''); setSuccess(''); }}
@@ -80,7 +80,7 @@ export default function LoginPage() {
         </div>
 
         {/* Form */}
-        <form className="login-form" onSubmit={handleSubmit}>
+        <form className="login-form stagger-4" onSubmit={handleSubmit}>
           <div className="form-field">
             <label className="field-label font-mono">Username</label>
             <div className="input-wrap">
@@ -88,10 +88,12 @@ export default function LoginPage() {
               <input
                 id="login-username"
                 type="text"
-                placeholder="Enter your username"
+                name="username"
+                placeholder="Enter your username…"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 autoComplete="username"
+                spellCheck={false}
               />
             </div>
           </div>
@@ -103,7 +105,8 @@ export default function LoginPage() {
               <input
                 id="login-password"
                 type="password"
-                placeholder={activeTab === 'register' ? 'Min 6 characters' : 'Enter your password'}
+                name={activeTab === 'register' ? 'new-password' : 'password'}
+                placeholder={activeTab === 'register' ? 'Min 6 characters…' : 'Enter your password…'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 autoComplete={activeTab === 'register' ? 'new-password' : 'current-password'}
@@ -112,7 +115,7 @@ export default function LoginPage() {
           </div>
 
           {error && (
-            <div className="form-alert alert-error">
+            <div className="form-alert alert-error animate-shake">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
               {error}
             </div>
@@ -128,7 +131,7 @@ export default function LoginPage() {
           <button
             id="login-submit"
             type="submit"
-            className="submit-btn"
+            className="submit-btn ripple-btn"
             disabled={loading}
           >
             {loading ? (
