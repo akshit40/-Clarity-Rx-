@@ -18,6 +18,24 @@ import { jsPDF } from 'jspdf';
 import { QRCodeSVG } from 'qrcode.react';
 import './Dashboard.css';
 
+const NeuralScanner = () => (
+  <div className="neural-scanner">
+    <div className="scan-line" />
+  </div>
+);
+
+const SafetyPulse = ({ color = 'var(--color-accent)' }) => (
+  <div className="heartbeat-container">
+    <svg width="100%" height="40" viewBox="0 0 400 40">
+      <path
+        className="heartbeat-line"
+        style={{ stroke: color }}
+        d="M0 20 L40 20 L50 10 L65 35 L75 20 L120 20 L130 5 L145 38 L160 20 L200 20 L210 12 L225 32 L235 20 L280 20 L290 8 L305 34 L320 20 L400 20"
+      />
+    </svg>
+  </div>
+);
+
 export default function Dashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -264,6 +282,7 @@ export default function Dashboard() {
         {/* Upload */}
         <div className="sidebar-upload">
           <FileUpload onUpload={handleUpload} isUploading={isUploading} />
+          {isUploading && <NeuralScanner />}
         </div>
 
         {/* Chat List */}
@@ -311,10 +330,9 @@ export default function Dashboard() {
               <p className="welcome-text">
                 Upload a prescription or select a chat from the sidebar to begin.
               </p>
-              <div className="welcome-features">
+              <div className="bento-grid animate-in-delayed">
                 <div 
-                  className="feature-card glass-panel"
-                  style={{ cursor: 'pointer' }}
+                  className="bento-tile glass-panel"
                   onClick={() => {
                     setSidebarOpen(true);
                     setTimeout(() => {
@@ -322,13 +340,12 @@ export default function Dashboard() {
                     }, 100);
                   }}
                 >
-                  <span className="feature-icon">📸</span>
-                  <h3>Upload & Extract</h3>
-                  <p>OCR-powered prescription analysis</p>
+                  <span className="tile-icon">📸</span>
+                  <span className="tile-label">Analysis Pipeline</span>
+                  <p className="tile-value">Neural-Extraction & Vision AI Analysis</p>
                 </div>
                 <div 
-                  className="feature-card glass-panel"
-                  style={{ cursor: 'pointer' }}
+                  className="bento-tile glass-panel"
                   onClick={() => {
                     setSidebarOpen(true);
                     setTimeout(() => {
@@ -338,18 +355,17 @@ export default function Dashboard() {
                     }, 100);
                   }}
                 >
-                  <span className="feature-icon">💬</span>
-                  <h3>Ask Questions</h3>
-                  <p>Chat with AI about your medicines</p>
+                  <span className="tile-icon">💬</span>
+                  <span className="tile-label">Contextual RAG</span>
+                  <p className="tile-value">Intuitive Chat with Medical Memory</p>
                 </div>
                 <div 
-                  className="feature-card glass-panel"
-                  style={{ cursor: 'pointer' }}
+                  className="bento-tile glass-panel"
                   onClick={() => navigate('/otc')}
                 >
-                  <span className="feature-icon">✅</span>
-                  <h3>OTC Check</h3>
-                  <p>Verify over-the-counter safety</p>
+                  <span className="tile-icon">✅</span>
+                  <span className="tile-label">Safety Shield</span>
+                  <p className="tile-value">Real-time OTC Verification System</p>
                 </div>
               </div>
             </div>
@@ -421,58 +437,58 @@ export default function Dashboard() {
                 </div>
               )}
 
-              {/* Guardian Results */}
+              {/* Guardian Bento Grid Results */}
               {showGuardian && (
-                <div className="guardian-results animate-in" style={{ margin: '0 2rem 1rem 2rem', background: 'rgba(126, 87, 194, 0.05)', border: '1px solid rgba(126, 87, 194, 0.2)', borderRadius: '12px', padding: '1.5rem' }}>
+                <div className="bento-grid animate-in">
                   {guardianLoading ? (
-                    <LoadingSpinner text="Consulting virtual pharmacist..." />
+                    <div className="glass-panel" style={{ gridColumn: '1 / -1', padding: '3rem' }}>
+                      <LoadingSpinner text="Shielding patient from risks: Consulting Knowledge Base..." />
+                    </div>
                   ) : guardianResult?.error ? (
                     <div className="form-alert alert-error">{guardianResult.error}</div>
                   ) : guardianResult ? (
-                    <div className="guardian-grid" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                      
-                      {/* DDI Alert */}
-                      <div className="guardian-card" style={{ background: guardianResult.ddi_alert !== 'None' ? 'rgba(255, 75, 75, 0.1)' : 'rgba(0, 230, 118, 0.1)', padding: '1rem', borderRadius: '8px', borderLeft: guardianResult.ddi_alert !== 'None' ? '4px solid #ff4b4b' : '4px solid #00e676' }}>
-                        <h4 style={{ margin: '0 0 0.5rem 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <span>{guardianResult.ddi_alert !== 'None' ? '🚨' : '✅'}</span> Drug Interaction (DDI)
-                        </h4>
-                        <p style={{ margin: 0, fontSize: '0.875rem' }}>{guardianResult.ddi_alert}</p>
+                    <>
+                      {/* DDI Alert Tile */}
+                      <div className={`bento-tile glass-panel ${guardianResult.ddi_alert !== 'None' ? 'tile-alert' : ''}`}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                          <span className="tile-label">Safety Protocol: DDI</span>
+                          <span className="tile-icon">{guardianResult.ddi_alert !== 'None' ? '🚨' : '✅'}</span>
+                        </div>
+                        <p className="tile-value">{guardianResult.ddi_alert}</p>
+                        <SafetyPulse color={guardianResult.ddi_alert !== 'None' ? 'var(--color-danger)' : 'var(--color-success)'} />
                       </div>
 
-                      {/* Generics */}
+                      {/* Generic Savings Tile */}
                       {guardianResult.generics?.length > 0 && (
-                        <div className="guardian-card" style={{ background: 'rgba(0, 170, 255, 0.05)', padding: '1rem', borderRadius: '8px', borderLeft: '4px solid #00aaff' }}>
-                          <h4 style={{ margin: '0 0 0.5rem 0', display: 'flex', alignItems: 'center', gap: '8px' }}>💰 Cheaper Alternatives</h4>
-                          <ul style={{ margin: 0, paddingLeft: '1.5rem', fontSize: '0.875rem' }}>
-                            {guardianResult.generics.map((g, idx) => (
-                              <li key={idx}><strong>{g.brand}</strong> &rarr; Try <b>{g.generic}</b></li>
+                        <div className="bento-tile glass-panel tile-saving">
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                            <span className="tile-label">Guardian Optimization</span>
+                            <span className="tile-icon">💎</span>
+                          </div>
+                          <p className="tile-value">Found {guardianResult.generics.length} Generic Alternatives</p>
+                          <div style={{ fontSize: '0.75rem', opacity: 0.7, marginTop: '0.5rem' }}>
+                            {guardianResult.generics.slice(0, 2).map((g, i) => (
+                              <div key={i}>• {g.brand} &rarr; {g.generic}</div>
                             ))}
-                          </ul>
+                          </div>
                         </div>
                       )}
 
-                      {/* Food & Lifestyle 2-col Grid */}
-                      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '1rem' }}>
-                        <div className="guardian-card" style={{ background: 'rgba(255, 179, 0, 0.05)', padding: '1rem', borderRadius: '8px' }}>
-                          <h4 style={{ margin: '0 0 0.5rem 0' }}>🍎 Food/Diet Safety</h4>
-                          <ul style={{ margin: 0, paddingLeft: '1rem', fontSize: '0.8125rem' }}>
-                            {guardianResult.food_warnings?.map((w, i) => <li key={i}>{w}</li>)}
-                          </ul>
-                        </div>
-                        <div className="guardian-card" style={{ background: 'rgba(200, 230, 201, 0.05)', padding: '1rem', borderRadius: '8px' }}>
-                          <h4 style={{ margin: '0 0 0.5rem 0' }}>🌿 Recovery Actions</h4>
-                          <ul style={{ margin: 0, paddingLeft: '1rem', fontSize: '0.8125rem' }}>
-                            {guardianResult.lifestyle_tips?.map((t, i) => <li key={i}>{t}</li>)}
-                          </ul>
-                        </div>
-                      </div>
-                      
-                      {/* Side Effects */}
-                      <div className="guardian-card" style={{ padding: '0.5rem 1rem' }}>
-                         <span style={{fontSize: '0.8125rem', color: 'var(--color-text-muted)'}}>Common Side Effects to watch: {guardianResult.side_effects?.join(", ")}</span>
+                      {/* Food & Lifestyle Group */}
+                      <div className="bento-tile glass-panel" style={{ background: 'rgba(64, 196, 255, 0.03)' }}>
+                        <span className="tile-label">Clinical Nuance: Diet</span>
+                        <p className="tile-value" style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)' }}>
+                          • {guardianResult.food_warnings?.[0] || "No critical food warnings detected."}
+                        </p>
                       </div>
 
-                    </div>
+                      <div className="bento-tile glass-panel">
+                        <span className="tile-label">Recovery Plan</span>
+                        <p className="tile-value" style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)' }}>
+                           • {guardianResult.lifestyle_tips?.[0] || "Maintain standard rest and hydration."}
+                        </p>
+                      </div>
+                    </>
                   ) : null}
                 </div>
               )}

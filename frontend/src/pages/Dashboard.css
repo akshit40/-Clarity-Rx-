@@ -277,15 +277,20 @@
 }
 
 .chat-header-title {
-  font-size: 1.125rem;
-  font-weight: 600;
+  font-size: 1.25rem;
+  font-weight: 700;
   color: var(--color-text-primary);
+  letter-spacing: -0.02em;
 }
 
 .chat-header-session {
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   color: var(--color-text-muted);
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
+  font-family: var(--font-mono);
+  background: rgba(255, 255, 255, 0.03);
+  padding: 2px 8px;
+  border-radius: 4px;
 }
 
 .chat-header-actions {
